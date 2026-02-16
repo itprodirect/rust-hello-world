@@ -4,5 +4,7 @@ members = [
     "crates/hello_lib",
     "crates/error_demo",
     "crates/concurrency_demo",
+    "crates/log_parser",
+    "benches/parser_bench",
 ]
 resolver = "2"
