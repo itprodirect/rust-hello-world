@@ -3,13 +3,14 @@ name = "parser_bench"
 version = "0.1.0"
 edition = "2021"
 description = "Criterion benchmarks for log_parser"
+license = "MIT"
 
 [[bench]]
 name = "parser_bench"
 harness = false
 
 [dependencies]
-log_parser = { path = "../../crates/log_parser" }
+log_parser = { path = "../../crates/log_parser", version = "0.1.0" }
 
 # criterion is the standard Rust benchmarking library. It provides statistical
 # analysis (mean, median, confidence intervals), HTML reports, and regression

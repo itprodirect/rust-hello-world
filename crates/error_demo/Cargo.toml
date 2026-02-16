@@ -3,6 +3,7 @@ name = "error_demo"
 version = "0.1.0"
 edition = "2021"
 description = "Typed error handling demo with thiserror and the ? operator"
+license = "MIT"
 
 [dependencies]
 # thiserror generates Display and From impls for custom error enums.

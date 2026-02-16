@@ -1,0 +1,73 @@
+# deny.toml — cargo-deny configuration
+# Docs: https://embarkstudios.github.io/cargo-deny/
+#
+# Run with: cargo deny check
+# This file is checked in CI on every push and PR.
+
+# ---------------------------------------------------------------------------
+# Advisories — check dependencies against the RustSec Advisory Database
+# ---------------------------------------------------------------------------
+[advisories]
+# Deny any dependency with a known security vulnerability. This is the most
+# important section: it blocks vulnerable code from entering the build.
+# "all" means both direct and transitive dependencies are checked.
+version = 2
+
+# If you need to temporarily allow a specific advisory (e.g. no fix exists
+# yet), list it here with a comment explaining why:
+# ignore = ["RUSTSEC-2024-XXXX"]  # No fix available; does not affect our usage
+
+# ---------------------------------------------------------------------------
+# Licenses — enforce license policy on the dependency tree
+# ---------------------------------------------------------------------------
+[licenses]
+version = 2
+
+# We accept these permissive licenses. Anything else is flagged.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "Zlib",
+]
+
+# Copyleft licenses would require open-sourcing downstream code.
+# Any license not in the allow list above is denied, so copyleft
+# (GPL, AGPL, LGPL) will be caught automatically.
+
+# Confidence threshold for license detection. 0.8 is the default and
+# works well for most crates.
+confidence-threshold = 0.8
+
+# ---------------------------------------------------------------------------
+# Bans — block specific crates or patterns
+# ---------------------------------------------------------------------------
+[bans]
+# Warn on multiple versions of the same crate in the dependency tree.
+# This catches unnecessary bloat from diamond dependencies.
+multiple-versions = "warn"
+
+# Ban wildcard dependencies (version = "*"). These are unpredictable and
+# can pull in breaking changes without warning.
+wildcards = "deny"
+
+# Block specific crates if needed (e.g. known-bad or superseded crates):
+# deny = [
+#     { crate = "openssl", use-instead = "rustls" },
+# ]
+
+# ---------------------------------------------------------------------------
+# Sources — ensure crates come from trusted registries
+# ---------------------------------------------------------------------------
+[sources]
+# Only allow crates from crates.io. Block git dependencies and unknown
+# registries to reduce supply-chain attack surface.
+unknown-registry = "warn"
+unknown-git = "warn"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
