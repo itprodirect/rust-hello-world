@@ -6,3 +6,8 @@ description = "CLI wrapper for hello_lib"
 
 [dependencies]
 hello_lib = { path = "../hello_lib" }
+
+# clap is the de facto CLI argument parser in the Rust ecosystem.
+# The "derive" feature lets us define args as a struct with attributes
+# instead of building a parser manually — less boilerplate, free --help/--version.
+clap = { version = "4", features = ["derive"] }
