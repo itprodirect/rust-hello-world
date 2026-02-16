@@ -1,0 +1,8 @@
+[package]
+name = "hello_cli"
+version = "0.1.0"
+edition = "2021"
+description = "CLI wrapper for hello_lib"
+
+[dependencies]
+hello_lib = { path = "../hello_lib" }
