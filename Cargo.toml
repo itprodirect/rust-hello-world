@@ -3,5 +3,6 @@ members = [
     "crates/hello_cli",
     "crates/hello_lib",
     "crates/error_demo",
+    "crates/concurrency_demo",
 ]
 resolver = "2"
