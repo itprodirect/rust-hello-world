@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "Typed error handling demo with thiserror and the ? operator"
 license = "MIT"
+repository = "https://github.com/itprodirect/rust-hello-world"
 
 [dependencies]
 # thiserror generates Display and From impls for custom error enums.

@@ -38,7 +38,7 @@ impl std::error::Error for ParseError {}
 /// Parse a single log line into a [`LogEntry`].
 ///
 /// Expected format: `TIMESTAMP LEVEL MESSAGE` where the first two tokens are
-/// whitespace-delimited and everything after the second space is the message.
+/// whitespace-delimited and everything after the second token is the message.
 ///
 /// # Examples
 ///
@@ -55,15 +55,46 @@ pub fn parse_line(line: &str) -> Result<LogEntry, ParseError> {
         });
     }
 
-    let (timestamp, rest) = trimmed.split_once(' ').ok_or_else(|| ParseError {
-        line: line.to_string(),
-        reason: "missing level and message".into(),
-    })?;
+    // Parse timestamp token.
+    let first_ws = trimmed
+        .char_indices()
+        .find(|(_, c)| c.is_whitespace())
+        .map(|(i, _)| i)
+        .ok_or_else(|| ParseError {
+            line: line.to_string(),
+            reason: "missing level and message".into(),
+        })?;
+    let timestamp = &trimmed[..first_ws];
 
-    let (level, message) = rest.split_once(' ').ok_or_else(|| ParseError {
-        line: line.to_string(),
-        reason: "missing message".into(),
-    })?;
+    // Skip inter-token whitespace, then parse level token.
+    let level_start = trimmed[first_ws..]
+        .char_indices()
+        .find(|(_, c)| !c.is_whitespace())
+        .map(|(i, _)| first_ws + i)
+        .ok_or_else(|| ParseError {
+            line: line.to_string(),
+            reason: "missing level and message".into(),
+        })?;
+    let level_end = trimmed[level_start..]
+        .char_indices()
+        .find(|(_, c)| c.is_whitespace())
+        .map(|(i, _)| level_start + i)
+        .ok_or_else(|| ParseError {
+            line: line.to_string(),
+            reason: "missing message".into(),
+        })?;
+    let level = &trimmed[level_start..level_end];
+
+    // Skip trailing whitespace after level; the rest is message.
+    let message_start = trimmed[level_end..]
+        .char_indices()
+        .find(|(_, c)| !c.is_whitespace())
+        .map(|(i, _)| level_end + i)
+        .ok_or_else(|| ParseError {
+            line: line.to_string(),
+            reason: "missing message".into(),
+        })?;
+    let message = &trimmed[message_start..];
 
     Ok(LogEntry {
         timestamp: timestamp.to_string(),
@@ -181,6 +212,21 @@ mod tests {
     }
 
     #[test]
+    fn parse_line_handles_multiple_spaces_between_fields() {
+        let entry = parse_line("2024-01-15T10:30:00Z   INFO   server started").unwrap();
+        assert_eq!(entry.timestamp, "2024-01-15T10:30:00Z");
+        assert_eq!(entry.level, "INFO");
+        assert_eq!(entry.message, "server started");
+    }
+
+    #[test]
+    fn parse_line_handles_tabs_between_fields() {
+        let entry = parse_line("2024-01-15T10:30:00Z\tWARN\tspike detected").unwrap();
+        assert_eq!(entry.level, "WARN");
+        assert_eq!(entry.message, "spike detected");
+    }
+
+    #[test]
     fn parse_line_empty_is_error() {
         assert!(parse_line("").is_err());
         assert!(parse_line("   ").is_err());
@@ -197,6 +243,11 @@ mod tests {
     }
 
     #[test]
+    fn parse_line_missing_level_and_message_is_error() {
+        assert!(parse_line("2024-01-15T10:30:00Z   ").is_err());
+    }
+
+    #[test]
     fn parse_log_collects_all_entries() {
         let input = generate_log(100);
         let entries = parse_log(&input);
@@ -208,6 +259,16 @@ mod tests {
         let input = "2024-01-15T10:00:00Z INFO a\n\n2024-01-15T10:00:01Z WARN b\n";
         let entries = parse_log(input);
         assert_eq!(entries.len(), 2);
+    }
+
+    #[test]
+    fn parse_log_skips_invalid_lines() {
+        let input =
+            "2024-01-15T10:00:00Z INFO ok\nthis_is_invalid\n2024-01-15T10:00:01Z WARN still_ok\n";
+        let entries = parse_log(input);
+        assert_eq!(entries.len(), 2);
+        assert_eq!(entries[0].message, "ok");
+        assert_eq!(entries[1].message, "still_ok");
     }
 
     #[test]
@@ -227,6 +288,16 @@ mod tests {
             .filter_map(|r| r.ok())
             .collect();
         assert_eq!(entries.len(), 2);
+    }
+
+    #[test]
+    fn streaming_emits_error_for_invalid_line_and_continues() {
+        let input = "2024-01-15T10:00:00Z INFO ok\ninvalid\n2024-01-15T10:00:01Z WARN still_ok\n";
+        let results: Vec<_> = parse_log_streaming(Cursor::new(input)).collect();
+        assert_eq!(results.len(), 3);
+        assert!(results[0].is_ok());
+        assert!(results[1].is_err());
+        assert!(results[2].is_ok());
     }
 
     #[test]

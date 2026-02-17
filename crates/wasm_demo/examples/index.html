@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>wasm_demo</title>
+    <style>
+      :root {
+        --bg: #f6f7fb;
+        --card: #ffffff;
+        --ink: #112031;
+        --accent: #0b5fff;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(circle at 20% 10%, #e9edff, var(--bg));
+        color: var(--ink);
+      }
+      main {
+        max-width: 640px;
+        margin: 48px auto;
+        padding: 24px;
+        background: var(--card);
+        border-radius: 12px;
+        box-shadow: 0 16px 32px rgba(17, 32, 49, 0.08);
+      }
+      h1 {
+        margin-top: 0;
+      }
+      code {
+        color: var(--accent);
+      }
+      .row {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Rust WASM Demo</h1>
+      <p>This page loads <code>wasm_demo</code> and calls two functions.</p>
+      <div class="row" id="greet"></div>
+      <div class="row" id="fib"></div>
+    </main>
+    <script type="module">
+      import init, { greet, fibonacci } from "../pkg/wasm_demo.js";
+
+      async function run() {
+        await init();
+        document.getElementById("greet").textContent = greet("browser");
+        document.getElementById("fib").textContent = `fibonacci(40) = ${fibonacci(40)}`;
+      }
+
+      run().catch((err) => {
+        document.getElementById("greet").textContent = `Failed to load WASM: ${err}`;
+      });
+    </script>
+  </body>
+</html>

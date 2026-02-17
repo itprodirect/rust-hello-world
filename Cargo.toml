@@ -5,6 +5,9 @@ members = [
     "crates/error_demo",
     "crates/concurrency_demo",
     "crates/log_parser",
+    "crates/ffi_demo",
+    "crates/wasm_demo",
+    "crates/power_blocks",
     "benches/parser_bench",
 ]
 resolver = "2"
