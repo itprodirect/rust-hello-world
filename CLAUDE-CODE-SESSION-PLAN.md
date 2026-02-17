@@ -1,5 +1,9 @@
 # Claude Code Session Plan — rust-hello-world
 
+> **Status update (2026-02-17):** Phases 0-7 are now implemented in this repository,
+> including `ffi_demo`, `wasm_demo`, and `power_blocks`.
+> Use `docs/README.md` for the current learning flow and
+> `docs/08-session-wrap-up-2026-02-17.md` for session-level details.
 > **Purpose:** Step-by-step prompts and checkpoints for building this repo with Claude Code.
 > Each session targets one phase. Finish one before starting the next.
 > Estimated total: 6–8 sessions of 30–60 minutes each.
@@ -361,3 +365,5 @@ After all phases are complete:
 4. **Use `@filename` references.** Point Claude Code at specific files when asking for edits.
 5. **Commit per phase.** Each phase = one atomic commit with a descriptive message.
 6. **If something breaks,** paste the error into Claude Code: `"I'm getting this error: [paste]. Fix it."`
+
+

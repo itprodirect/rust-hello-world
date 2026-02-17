@@ -1,95 +1,118 @@
-# 00 — Getting Started
+# 00 - Getting Started
 
-## What This Repo Is
+## Goal
 
-A Cargo workspace containing small, independent Rust labs ("micro-labs"). Each lab is its own crate — you can build, test, and run them independently. The goal is to make Rust's strengths visible through code you can actually execute and measure.
+Get the workspace running locally, then pick a phase and move with a tight feedback loop.
 
 ## Prerequisites
 
-You need three things: Rust, Git, and a terminal.
+- Rust stable (`rustup`, `cargo`, `rustc`)
+- Git
+- Terminal (PowerShell, Bash, or zsh)
 
-### Install Rust
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-source $HOME/.cargo/env
-
-# Verify
-rustc --version    # should be 1.78+
-cargo --version
-```
-
-On Windows, download and run [rustup-init.exe](https://rustup.rs/) instead. If you're using WSL2, the `curl` command above works fine.
-
-### Install Supporting Tools
+Recommended tooling:
 
 ```bash
-# Linting and formatting (usually included with rustup)
-rustup component add clippy
-rustup component add rustfmt
-
-# Security auditing
+rustup component add clippy rustfmt
 cargo install cargo-audit
-
-# License + advisory checking (optional, used in Phase 5)
 cargo install cargo-deny
 ```
 
-### Clone the Repo
+## First Run
 
 ```bash
-git clone https://github.com/itprodirect/rust-hello-world.git
-cd rust-hello-world
+cargo build --workspace
+cargo test --workspace
+cargo run -p hello_cli -- --name "world"
 ```
 
-## How the Workspace Is Organized
+## Learning Workflow
 
-The root `Cargo.toml` defines a workspace. Each crate lives in `crates/` and has its own `Cargo.toml`, `src/`, and tests. You never need to `cd` into a crate — Cargo handles it from the root:
+1. Read one phase doc.
+2. Run tests for only that crate.
+3. Run the binary/bench/example.
+4. Copy one reusable pattern.
+5. Make one change and re-run tests.
+
+## Crate Map
+
+- `hello_lib`: pure functions and doc tests.
+- `hello_cli`: thin CLI over library code.
+- `error_demo`: typed error flow.
+- `concurrency_demo`: std-thread concurrency patterns.
+- `log_parser`: robust parsing and streaming.
+- `ffi_demo`: native ABI interop exports.
+- `wasm_demo`: web-target interop exports.
+- `power_blocks`: reusable production snippets.
+
+## Useful Commands
 
 ```bash
-# Build everything
-cargo build --workspace
+# Focused test runs
+cargo test -p hello_lib
+cargo test -p log_parser
+cargo test -p power_blocks
 
-# Test everything
+# Full quality gates
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 
-# Run a specific crate
-cargo run -p hello_cli -- --name "world"
+# Security and benchmarking
+cargo audit
+cargo deny check
+cargo bench -p parser_bench
 
-# Test a specific crate
-cargo test -p hello_lib
+# Interop regression checks
+bash scripts/check_phase6.sh
+powershell -NoProfile -File scripts/check_phase6.ps1
 ```
 
-## How to Use the Labs
+## Interop Troubleshooting
 
-Each lab has a corresponding doc in `docs/` numbered by phase. Read the doc first — it explains *why* the lab exists and *what* you should observe. Then run the code and look at the output.
+1. `Cannot find module 'ffi-napi'`
+- Install or use recommended path:
+```bash
+npm install koffi
+node crates/ffi_demo/examples/call_from_node_koffi.js
+```
 
-The recommended order is phases 0 through 6, but you can jump ahead if a topic interests you. The only dependency chain is that `hello_cli` depends on `hello_lib`.
+2. `npm install ffi-napi` fails with `node-gyp` / `MSBuild` / `libffi`
+- Use Node 20 for the advanced ffi-napi path:
+```bash
+nvm install 20.19.0
+nvm use 20.19.0
+npm install ffi-napi
+```
 
-## Interpreting Outputs
+3. `wasm-pack: command not found`
+- Install wasm-pack:
+```bash
+cargo install wasm-pack
+```
 
-Every lab produces at least one measurable outcome. Here's what to look for:
+4. `failed to create temp dir for cargo install wasm-bindgen` / `Access is denied`
+- Run in a terminal with write access to temp/cache directories.
+- On Windows, use:
+```bash
+powershell -NoProfile -File scripts/check_phase6.ps1
+```
 
-- **Tests:** `cargo test -p <crate>` should print all green. Read the test names — they describe the behavior being verified.
-- **Timing:** Some labs print wall-clock comparisons (e.g., concurrent vs sequential). Look for the ratio, not the absolute numbers — your machine's speed will vary.
-- **Benchmarks:** `cargo bench` (Phase 4+) uses criterion, which produces statistical output. Focus on the "time" column and the throughput (elements/sec or lines/sec).
-- **Binary size:** `bash scripts/size.sh` reports stripped release binary sizes. Rust binaries are typically 1–5 MB for simple programs.
-- **Security scans:** `cargo audit` and `cargo deny check` either pass clean or list advisories. A clean pass means your dependency tree has no known vulnerabilities.
+5. FFI library not found (`ffi_demo.dll` / `libffi_demo.so` / `libffi_demo.dylib`)
+- Build release artifact first:
+```bash
+cargo build --release -p ffi_demo
+```
 
-## Troubleshooting
+6. WASM page loads but prints nothing
+- Serve over HTTP, do not open `index.html` directly:
+```bash
+cd crates/wasm_demo/examples
+python -m http.server 8080
+```
 
-**`cargo build` fails with "could not find `Cargo.toml` in ... or any parent directory"**
-You're not in the repo root. `cd rust-hello-world` first.
+## Next
 
-**`cargo clippy` warns about something**
-Good — that's the point. Read the warning, fix it, and re-run. Clippy catches real bugs.
+[01 - Hello CLI](01-hello-cli.md)
 
-**`cargo audit` reports a vulnerability**
-Run `cargo update` to pull patched versions. If the advisory is in a transitive dependency, check if a newer version of your direct dependency fixes it.
-
-**Tests fail on Windows**
-Some labs use Unix-style paths or env vars. If you're on Windows without WSL, check the test for platform-specific assumptions.
-
-## Next Step
-
-→ [Phase 1: Hello CLI](01-hello-cli.md)
+Last updated: 2026-02-17
