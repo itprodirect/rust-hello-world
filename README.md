@@ -139,7 +139,10 @@ See `crates/ffi_demo/examples/README.md` for exact setup and troubleshooting.
 - [06 - FFI and WASM](docs/06-ffi-and-wasm.md)
 - [07 - Reusable Power Blocks](docs/07-reusable-power-blocks.md)
 - [08 - Session Wrap-Up (2026-02-17)](docs/08-session-wrap-up-2026-02-17.md)
+- [09 - Release Process](docs/09-release-process.md)
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+

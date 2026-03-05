@@ -68,6 +68,12 @@ bash scripts/check_phase6.sh
 powershell -NoProfile -File scripts/check_phase6.ps1
 ```
 
+## Release Process
+
+For repeatable tagged releases, use:
+
+- [09 - Release Process](09-release-process.md)
+
 ## Interop Troubleshooting
 
 1. `Cannot find module 'ffi-napi'`
@@ -115,4 +121,6 @@ python -m http.server 8080
 
 [01 - Hello CLI](01-hello-cli.md)
 
-Last updated: 2026-02-17
+Last updated: 2026-03-05
+
+

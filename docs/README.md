@@ -24,6 +24,7 @@ Use this index to move quickly between phases and operational guides.
 ## Session and Maintenance Notes
 
 - [08 - Session Wrap-Up (2026-02-17)](08-session-wrap-up-2026-02-17.md)
+- [09 - Release Process](09-release-process.md)
 
 ## Suggested Learning Path
 
@@ -32,4 +33,4 @@ Use this index to move quickly between phases and operational guides.
 3. Use phase 6 for incremental adoption into existing stacks.
 4. Use phase 7 as your pattern library for new projects.
 
-Last updated: 2026-02-17
+Last updated: 2026-03-05
